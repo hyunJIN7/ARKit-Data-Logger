@@ -29,6 +29,10 @@ For more details, see the ARConfiguration WorldAlignment documentation [here](ht
 
 I have chosen the following output formats, but they are easy to modify if you find something else more convenient.
 
+ios_logger app 사용해 데이터 취득
+* ios_logger의 ARposes.txt : `time(s),ARKit.translation.x(m),ARKit.translation.y(m),ARKit.translation.z(m),ARKit.quaternion.w,ARKit.quaternion.x,ARKit.quaternion.y,ARKit.quaternion.z`
+ARKit 6-DoF camera pose format과 맞추기 위해 data load 파트 약간 수정함.
+
 * ARKit 6-DoF Camera Pose (ARKit_camera_pose.txt): `timestamp, r_11, r_12, r_13, t_x, r_21, r_22, r_23, t_y, r_31, r_32, r_33, t_z \n`
 * ARKit 3D Point Cloud (ARKit_point_cloud.txt): `position_x, position_y, position_z, color_Y, color_Cb, color_Cr \n`
 
