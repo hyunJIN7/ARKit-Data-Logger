@@ -12,14 +12,53 @@ headerlinesIn = 1;
 nanoSecondToSecond = 1000000000;
 
 
-%% 1) parse ARKit camera pose data
+%% 1) parse ARKit camera pose data  timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
 
 % parsing ARKit camera pose data text file
-textFileDir = 'ARKit_camera_pose.txt';
+textFileDir = 'opti_pose_icptest2d_02_96.txt';
 textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
 ARKitPoseTime = textARKitPoseData.data(:,1).';
 ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 ARKitPoseData = textARKitPoseData.data(:,[2:13]);
+
+% if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
+% parsing ARKit camera pose data text file
+delimiter = ',';
+textFileDir = 'ARposes_opti_icptest2d_02.txt';
+textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
+ARKitPoseTime = textARKitPoseData.data(:,1).';
+ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
+ARKitPoseData = textARKitPoseData.data(:,[2:]);
+
+
+%============================================================================
+% if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
+% parsing ARKit camera pose data text file
+delimiter = ',';
+textFileDir = 'ARposes_opti_icptest2d_02.txt';
+textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
+ARKitPoseTime = textARKitPoseData.data(:,1).';
+ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
+ARKitPoseData = textARKitPoseData.data(:,[2:8]);
+
+n = size(ARKitPoseData)
+n = n(1);
+
+all_pos=[];
+for i = 1 : n
+    trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
+    quat = ARKitPoseData(i,4:7);
+    rotm = q2r(quat); %(3,3)
+    rt = [rotm , trans]; % (3,4)
+    rt1 = rt(1,:);
+    rt2 = rt(2,:);
+    rt3 = rt(3,:);
+    r = [rt1 rt2 rt3];
+    r = cast(r,"double");
+    all_pos = vertcat(all_pos, r);
+end
+ARKitPoseData = all_pos;
+%============================================================
 
 % ARKit camera pose with various 6-DoF camera pose representations
 numPose = size(ARKitPoseData,1);
@@ -55,14 +94,14 @@ set(gcf,'Units','pixels','Position',[100 200 1800 900]);  % modify figure
 %% 2) parse ARKit point cloud data
 
 % parsing ARKit point cloud data text file
-textFileDir = 'ARKit_point_cloud.txt';
-textARKitPointData = importdata(textFileDir, delimiter, headerlinesIn);
+%textFileDir = 'ARKit_point_cloud.txt';
+%textARKitPointData = importdata(textFileDir, delimiter, headerlinesIn);
 
 % ARKit 3D point cloud
-ARKitPoints = textARKitPointData.data(:,[1:3]).';
-ARKitColorsYCbCr = textARKitPointData.data(:,[4:6]).';
-ARKitColors = YCbCr2RGB(ARKitColorsYCbCr);
-numPoints = size(ARKitPoints,2);
+%ARKitPoints = textARKitPointData.data(:,[1:3]).';
+%ARKitColorsYCbCr = textARKitPointData.data(:,[4:6]).';
+%ARKitColors = YCbCr2RGB(ARKitColorsYCbCr);
+%numPoints = size(ARKitPoints,2);
 
 
 %% plot ARKit VIO results
@@ -88,7 +127,7 @@ end
 % 2) plot ARKit VIO motion estimation results
 figure;
 h_ARKit = plot3(stateEsti_ARKit(1,:),stateEsti_ARKit(2,:),stateEsti_ARKit(3,:),'m','LineWidth',2); hold on; grid on;
-scatter3(ARKitPoints(1,:), ARKitPoints(2,:), ARKitPoints(3,:), 50*ones(numPoints,1), (ARKitColors ./ 255).','.');
+%scatter3(ARKitPoints(1,:), ARKitPoints(2,:), ARKitPoints(3,:), 50*ones(numPoints,1), (ARKitColors ./ 255).','.');
 plot_inertial_frame(0.5); legend(h_ARKit,{'ARKit'}); axis equal; view(26, 73);
 xlabel('x [m]','fontsize',10); ylabel('y [m]','fontsize',10); zlabel('z [m]','fontsize',10); hold off;
 
@@ -120,5 +159,3 @@ set(get(gcf,'CurrentAxes'),'FontName','Times New Roman','FontSize',17);
 xlabel('Time [sec]','FontName','Times New Roman','FontSize',17);
 ylabel('Yaw [rad]','FontName','Times New Roman','FontSize',17);
 set(gcf,'Units','pixels','Position',[100 200 1800 900]); % modify figure
-
-
