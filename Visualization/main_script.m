@@ -21,19 +21,10 @@ ARKitPoseTime = textARKitPoseData.data(:,1).';
 ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 ARKitPoseData = textARKitPoseData.data(:,[2:13]);
 
-% if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
-% parsing ARKit camera pose data text file
-delimiter = ',';
-textFileDir = 'ARposes_opti_icptest2d_02.txt';
-textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
-ARKitPoseTime = textARKitPoseData.data(:,1).';
-ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
-ARKitPoseData = textARKitPoseData.data(:,[2:]);
-
-
 %============================================================================
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
 % parsing ARKit camera pose data text file
+% 사용할때 한쪽은 주석 처리 해야함
 delimiter = ',';
 textFileDir = 'ARposes_opti_icptest2d_02.txt';
 textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
