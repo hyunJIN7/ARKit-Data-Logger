@@ -10,14 +10,18 @@ dbstop if error;
 delimiter = ' ';
 headerlinesIn = 1;
 nanoSecondToSecond = 1000000000;
+optiTextFileDir = 'icp_opti_pose_icptest2d_02_96.txt';
+iosTextFileDir = 'icp_opti_pose_icptest2d_02_96.txt';
+
+
 
 
 %% 1) parse OptiTrack camera pose data
 
 % parsing OptiTrack camera pose data text file
 % timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
-textFileDir = 'opti_pose_icptest2d_02_96.txt';
-textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
+% optiTextFileDir = 'icp_opti_pose_icptest2d_02_96.txt';
+textARKitPoseData = importdata(optiTextFileDir, delimiter, headerlinesIn);
 ARKitPoseTime = textARKitPoseData.data(:,1).';
 ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 ARKitPoseData = textARKitPoseData.data(:,[2:13]);
@@ -67,8 +71,8 @@ set(gcf,'Units','pixels','Position',[100 200 1800 900]);  % modify figure
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
 % parsing ARKit camera pose data text file
 delimiter = ',';
-textFileDir = ['ARposes_opti_icptest2d_02.txt'];
-textARCorePoseData = importdata(textFileDir, delimiter, headerlinesIn);
+% iosTextFileDir = ['ARposes_opti_icptest2d_02.txt'];
+textARCorePoseData = importdata(iosTextFileDir, delimiter, headerlinesIn);
 ARCorePoseTime = textARCorePoseData.data(:,1).';
 ARCorePoseTime = (ARCorePoseTime - ARCorePoseTime(1)) ./ nanoSecondToSecond;
 ARCorePoseData = textARCorePoseData.data(:,[2:8]);
@@ -144,5 +148,3 @@ h_ARCore = plot3(stateEsti_ARCore(1,:),stateEsti_ARCore(2,:),stateEsti_ARCore(3,
 plot_inertial_frame(0.5); legend(h_ARCore,{'ARCore'}); axis equal; view(26, 73);
 
 hold off
-
-
