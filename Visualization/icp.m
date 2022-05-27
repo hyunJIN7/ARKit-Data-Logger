@@ -76,15 +76,17 @@ ios_ptCloud = pointCloud(ios_position);
 % moving, fixed
 [tform,movingReg] = pcregistericp(opti_ptCloud,ios_ptCloud);
 
+
 % % icp 적용한 optitrack txt 파일 저장
 fname = append("icp_", optiTextFileDir);
 f = fopen(fname,"a");
+Rot = tform.Rotation;
 for k = 1:numPose
     %%position
     t_new = [movingReg.Location(k,1);movingReg.Location(k,2);movingReg.Location(k,3)];
     %% Rotation matrix  r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z   4 8 12
     rotm = [OptiTrackPoseData(k,1:3); OptiTrackPoseData(k,5:7);OptiTrackPoseData(k,9:11)];
-    r_new = tform.Rotation*rotm;
+    r_new = Rot*rotm;
     pose_new = zeros(3,4);
     pose_new(:,1:3)= r_new;
     pose_new(:,4) = t_new;  %(3,4)    
@@ -93,3 +95,25 @@ for k = 1:numPose
     textfile = fprintf(f, "%.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f\n",time,pose_new(1,:),pose_new(2,:), pose_new(3,:));
 end
  fclose(f);
+ 
+
+%% 그려보자 point cloud만 
+figure
+pcshowpair(opti_ptCloud,ios_ptCloud,'MarkerSize',50)
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
+title('Point clouds before registration')
+legend({'Moving point cloud','Fixed point cloud'},'TextColor','w')
+legend('Location','southoutside')
+
+
+
+figure
+pcshowpair(movingReg,ios_ptCloud,'MarkerSize',50)
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
+title('Point clouds after registration')
+legend({'Moving point cloud','Fixed point cloud'},'TextColor','w')
+legend('Location','southoutside')
