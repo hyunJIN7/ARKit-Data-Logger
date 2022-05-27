@@ -81,12 +81,8 @@ for k = 1:numPose
     OptiTrackPoseData(k,4) = movingReg.Location(k,1);
     OptiTrackPoseData(k,8) =  movingReg.Location(k,2);
     OptiTrackPoseData(k,12) =  movingReg.Location(k,3); 
-    time = OptiTrackPoseTime(i)  
-    p = OptiTrackPoseData(i,:)
-%     line = horzcat(time, p)
-%     line = cast(line,"double")
+    time = OptiTrackPoseTime(k)  
+    p = OptiTrackPoseData(k,:)
     textfile = fprintf(f, "%.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f\n",time,p);
 end
  fclose(f);
-
-
