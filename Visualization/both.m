@@ -73,8 +73,7 @@ ARCorePoseTime = textARCorePoseData.data(:,1).';
 ARCorePoseTime = (ARCorePoseTime - ARCorePoseTime(1)) ./ nanoSecondToSecond;
 ARCorePoseData = textARCorePoseData.data(:,[2:8]);
 
-n = size(ARCorePoseData)
-n = n(1);
+n = size(ARCorePoseData,1);
 
 all_pos=[];
 for i = 1 : n
