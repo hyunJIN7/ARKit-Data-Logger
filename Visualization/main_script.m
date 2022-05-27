@@ -32,8 +32,7 @@ ARKitPoseTime = textARKitPoseData.data(:,1).';
 ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 ARKitPoseData = textARKitPoseData.data(:,[2:8]);
 
-n = size(ARKitPoseData)
-n = n(1);
+n = size(ARKitPoseData,1);
 
 all_pos=[];
 for i = 1 : n
