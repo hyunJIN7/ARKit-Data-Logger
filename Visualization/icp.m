@@ -11,14 +11,16 @@ dbstop if error;
 delimiter = ' ';
 headerlinesIn = 1;
 nanoSecondToSecond = 1000000000;
+optiTextFileDir = 'icp_opti_pose_icptest2d_02_96.txt';
+iosTextFileDir = 'icp_opti_pose_icptest2d_02_96.txt';
 
 
 %% 1) parse OptiTrack camera pose data
 
 % parsing OptiTrack camera pose data text file
 % timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z   4 8 12
-textFileDir = 'opti_pose_ptich_xyz_96.txt';
-textOptiTrackPoseData = importdata(textFileDir, delimiter, headerlinesIn);
+% optiTextFileDir = 'opti_pose_icptest2d_02_96.txt';
+textOptiTrackPoseData = importdata(optiTextFileDir, delimiter, headerlinesIn);
 OptiTrackPoseTime = textOptiTrackPoseData.data(:,1).';
 OptiTrackPoseData = textOptiTrackPoseData.data(:,[2:13]);
 
@@ -43,8 +45,8 @@ end
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
 % parsing ARKit camera pose data text file
 delimiter = ',';
-textFileDir2 = ['ARposes_opti_pitch_xyz.txt'];
-textARKitPoseData = importdata(textFileDir2, delimiter, headerlinesIn);
+% iosTextFileDir = ['ARposes_opti_icptest2d_02.txt'];
+textARKitPoseData = importdata(iosTextFileDir, delimiter, headerlinesIn);
 ARKitPoseTime = textARKitPoseData.data(:,1).';
 ARKitPoseData = textARKitPoseData.data(:,[2:8]);
 
