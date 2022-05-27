@@ -11,8 +11,8 @@ dbstop if error;
 delimiter = ' ';
 headerlinesIn = 1; % 이 값 때문에 head 1개 안나옴.
 nanoSecondToSecond = 1000000000;
-optiTextFileDir = 'opti_pose_ptich_xyz_96.txt';
-iosTextFileDir = 'ARposes_opti_pitch_xyz.txt';
+optiTextFileDir = 'opti_pose_trcuk_icptest_96.txt';
+iosTextFileDir = 'ARposes_opti_truck_icp.txt';
 
 
 %% 1) parse OptiTrack camera pose data
@@ -53,7 +53,7 @@ ARKitPoseData = textARKitPoseData.data(:,[2:8]);
 n = size(ARKitPoseData,1);
 ios_position = [] ;
 all_pos=[];
-for i = 1 : 3
+for i = 1 : n
     trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
     ios_position = vertcat(ios_position, trans.');
     quat = ARKitPoseData(i,4:7);
