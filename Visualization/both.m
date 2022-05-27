@@ -16,7 +16,7 @@ nanoSecondToSecond = 1000000000;
 
 % parsing OptiTrack camera pose data text file
 % timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
-textFileDir = 'position_xyz.txt';
+textFileDir = 'opti_pose_icptest2d_02_96.txt';
 textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
 ARKitPoseTime = textARKitPoseData.data(:,1).';
 ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
@@ -67,11 +67,11 @@ set(gcf,'Units','pixels','Position',[100 200 1800 900]);  % modify figure
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
 % parsing ARKit camera pose data text file
 delimiter = ',';
-textFileDir = ['ios_xyz_m1000.txt'];
+textFileDir = ['ARposes_opti_icptest2d_02.txt'];
 textARCorePoseData = importdata(textFileDir, delimiter, headerlinesIn);
 ARCorePoseTime = textARCorePoseData.data(:,1).';
 ARCorePoseTime = (ARCorePoseTime - ARCorePoseTime(1)) ./ nanoSecondToSecond;
-ARCorePoseData = textARCorePoseData.data(:,[2:13]);
+ARCorePoseData = textARCorePoseData.data(:,[2:8]);
 
 n = size(ARCorePoseData)
 n = n(1);
@@ -91,8 +91,6 @@ for i = 1 : n
 end
 ARCorePoseData = all_pos;
 %============================================================
-
-
 
 
 
