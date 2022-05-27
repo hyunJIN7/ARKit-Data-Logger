@@ -11,8 +11,8 @@ dbstop if error;
 delimiter = ' ';
 headerlinesIn = 1;
 nanoSecondToSecond = 1000000000;
-optiTextFileDir = 'icp_opti_pose_icptest2d_02_96.txt';
-iosTextFileDir = 'icp_opti_pose_icptest2d_02_96.txt';
+optiTextFileDir = 'opti_pose_trcuk_icptest_96.txt';
+iosTextFileDir = 'ARposes_opti_truck_icp.txt';
 
 
 %% 1) parse OptiTrack camera pose data
@@ -77,7 +77,7 @@ ios_ptCloud = pointCloud(ios_position);
 [tform,movingReg] = pcregistericp(opti_ptCloud,ios_ptCloud);
 movingReg.Location
 % icp 적용한 optitrack txt 파일 저장
-fname = append("icp_", textFileDir);
+fname = append("icp_", optiTextFileDir);
 f = fopen(fname,"a");
 for k = 1:numPose
     OptiTrackPoseData(k,4) = movingReg.Location(k,1);
