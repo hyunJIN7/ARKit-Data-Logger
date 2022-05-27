@@ -9,10 +9,10 @@ dbstop if error;
 %% common setting to read text files
 
 delimiter = ' ';
-headerlinesIn = 1;
+headerlinesIn = 1; % 이 값 때문에 head 1개 안나옴.
 nanoSecondToSecond = 1000000000;
-optiTextFileDir = 'opti_pose_trcuk_icptest_96.txt';
-iosTextFileDir = 'ARposes_opti_truck_icp.txt';
+optiTextFileDir = 'opti_pose_ptich_xyz_96.txt';
+iosTextFileDir = 'ARposes_opti_pitch_xyz.txt';
 
 
 %% 1) parse OptiTrack camera pose data
@@ -25,7 +25,7 @@ OptiTrackPoseTime = textOptiTrackPoseData.data(:,1).';
 OptiTrackPoseData = textOptiTrackPoseData.data(:,[2:13]);
 
 % OptiTrack camera pose with various 6-DoF camera pose representations
-numPose = size(OptiTrackPoseData,1);
+numPose = size(OptiTrackPoseData,1)
 optiPosition = [] ; %optitrack pose 데이터만 모아놓은
 for k = 1:numPose
     trans = [OptiTrackPoseData(k,4) OptiTrackPoseData(k,8) OptiTrackPoseData(k,12) ];
@@ -75,16 +75,21 @@ ios_ptCloud = pointCloud(ios_position);
 
 % moving, fixed
 [tform,movingReg] = pcregistericp(opti_ptCloud,ios_ptCloud);
-movingReg.Location
-% icp 적용한 optitrack txt 파일 저장
+
+% % icp 적용한 optitrack txt 파일 저장
 fname = append("icp_", optiTextFileDir);
 f = fopen(fname,"a");
 for k = 1:numPose
-    OptiTrackPoseData(k,4) = movingReg.Location(k,1);
-    OptiTrackPoseData(k,8) =  movingReg.Location(k,2);
-    OptiTrackPoseData(k,12) =  movingReg.Location(k,3); 
-    time = OptiTrackPoseTime(k)  
-    p = OptiTrackPoseData(k,:)
-    textfile = fprintf(f, "%.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f\n",time,p);
+    %%position
+    t_new = [movingReg.Location(k,1);movingReg.Location(k,2);movingReg.Location(k,3)];
+    %% Rotation matrix  r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z   4 8 12
+    rotm = [OptiTrackPoseData(k,1:3); OptiTrackPoseData(k,5:7);OptiTrackPoseData(k,9:11)];
+    r_new = tform.Rotation*rotm;
+    pose_new = zeros(3,4);
+    pose_new(:,1:3)= r_new;
+    pose_new(:,4) = t_new;  %(3,4)    
+    time = OptiTrackPoseTime(k);  
+    p = OptiTrackPoseData(k,:);
+    textfile = fprintf(f, "%.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f\n",time,pose_new(1,:),pose_new(2,:), pose_new(3,:));
 end
  fclose(f);
