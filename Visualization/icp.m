@@ -75,6 +75,9 @@ ios_ptCloud = pointCloud(ios_position);
 
 % moving, fixed
 [tform,movingReg] = pcregistericp(opti_ptCloud,ios_ptCloud);
+%[tform,movingReg] = pcregistercpd(opti_ptCloud,ios_ptCloud);
+% cpd 로 하면 정확히 일치함. 근데 default 가 nonrigid라서 rigid로 바꿔줘야 tform이 rigid3D 값으로 나와 rotation matrix 곱할 수 있음
+% 인자 넣어주는 파트 에러 계속 
 
 
 % % icp 적용한 optitrack txt 파일 저장
