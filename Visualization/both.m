@@ -1,0 +1,116 @@
+clc;
+close all;
+clear variables; %clear classes;
+rand('state',0); % rand('state',sum(100*clock));
+dbstop if error;
+
+
+%% common setting to read text files
+
+delimiter = ' ';
+headerlinesIn = 1;
+nanoSecondToSecond = 1000000000;
+
+
+%% 1) parse OptiTrack camera pose data
+
+% parsing OptiTrack camera pose data text file
+textFileDir = 'position_xyz.txt';
+textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
+ARKitPoseTime = textARKitPoseData.data(:,1).';
+ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
+ARKitPoseData = textARKitPoseData.data(:,[2:13]);
+
+% OptiTrack camera pose with various 6-DoF camera pose representations
+numPose = size(ARKitPoseData,1);
+T_gc_ARKit = cell(1,numPose);
+stateEsti_ARKit = zeros(6,numPose);
+R_gc_ARKit = zeros(3,3,numPose);
+for k = 1:numPose
+    
+    % rigid body transformation matrix (4x4)
+    T_gc_ARKit{k} = [reshape(ARKitPoseData(k,:).', 4, 3).'; [0, 0, 0, 1]];
+    
+    % state vector and rotation matrix
+    R_gc_ARKit(:,:,k) = T_gc_ARKit{k}(1:3,1:3);
+    stateEsti_ARKit(1:3,k) = T_gc_ARKit{k}(1:3,4);
+    [yaw, pitch, roll] = dcm2angle(R_gc_ARKit(:,:,k));
+    stateEsti_ARKit(4:6,k) = [roll; pitch; yaw];
+end
+
+% plot update rate of OptiTrack camera pose
+timeDifference = diff(ARKitPoseTime);
+meanUpdateRate = (1/mean(timeDifference));
+figure;
+plot(ARKitPoseTime(2:end), timeDifference, 'm'); hold on; grid on; axis tight;
+set(gcf,'color','w'); hold off;
+axis([min(ARKitPoseTime) max(ARKitPoseTime) min(timeDifference) max(timeDifference)]);
+set(get(gcf,'CurrentAxes'),'FontName','Times New Roman','FontSize',17);
+xlabel('Time [sec]','FontName','Times New Roman','FontSize',17);
+ylabel('Time Difference [sec]','FontName','Times New Roman','FontSize',17);
+title(['Mean Update Rate: ', num2str(meanUpdateRate), ' Hz'],'FontName','Times New Roman','FontSize',17);
+set(gcf,'Units','pixels','Position',[100 200 1800 900]);  % modify figure
+
+
+
+%% 2) parse ios_logger camera pose data
+
+% parsing ios_logger camera pose data text file
+textFileDir = ['ios_xyz_m1000.txt'];
+textARCorePoseData = importdata(textFileDir, delimiter, headerlinesIn);
+ARCorePoseTime = textARCorePoseData.data(:,1).';
+ARCorePoseTime = (ARCorePoseTime - ARCorePoseTime(1)) ./ nanoSecondToSecond;
+ARCorePoseData = textARCorePoseData.data(:,[2:13]);
+
+% ios_logger camera pose with various 6-DoF camera pose representations
+numPose = size(ARCorePoseData,1);
+T_gc_ARCore = cell(1,numPose);
+stateEsti_ARCore = zeros(6,numPose);
+R_gc_ARCore = zeros(3,3,numPose);
+for k = 1:numPose
+    
+    % rigid body transformation matrix (4x4)
+    T_gc_ARCore{k} = [reshape(ARCorePoseData(k,:).', 4, 3).'; [0, 0, 0, 1]];
+    
+    % state vector and rotation matrix
+    R_gc_ARCore(:,:,k) = T_gc_ARCore{k}(1:3,1:3);
+    stateEsti_ARCore(1:3,k) = T_gc_ARCore{k}(1:3,4);
+    [yaw, pitch, roll] = dcm2angle(R_gc_ARCore(:,:,k));
+    stateEsti_ARCore(4:6,k) = [roll; pitch; yaw];
+end
+
+% plot update rate of ios_logger camera pose
+timeDifference = diff(ARCorePoseTime);
+meanUpdateRate = (1/mean(timeDifference));
+figure;
+plot(ARCorePoseTime(2:end), timeDifference, 'm'); hold on; grid on; axis tight;
+set(gcf,'color','w'); hold off;
+axis([min(ARCorePoseTime) max(ARCorePoseTime) min(timeDifference) max(timeDifference)]);
+set(get(gcf,'CurrentAxes'),'FontName','Times New Roman','FontSize',17);
+xlabel('Time [sec]','FontName','Times New Roman','FontSize',17);
+ylabel('Time Difference [sec]','FontName','Times New Roman','FontSize',17);
+title(['Mean Update Rate: ', num2str(meanUpdateRate), ' Hz'],'FontName','Times New Roman','FontSize',17);
+set(gcf,'Units','pixels','Position',[100 200 1800 900]);  % modify figure
+
+
+
+%% Plot
+% plot OptiTrack VIO motion estimation results
+%figure;
+h_ARKit = plot3(stateEsti_ARKit(1,:),stateEsti_ARKit(2,:),stateEsti_ARKit(3,:),'r','LineWidth',2); hold on; grid on;
+plot_inertial_frame(0.5); legend(h_ARKit,{'ARKit'}); axis equal; view(26, 73);
+xlabel('x [m]','fontsize',10); ylabel('y [m]','fontsize',10); zlabel('z [m]','fontsize',10); hold off;
+
+% figure options
+f = FigureRotator(gca());
+
+hold on
+
+%plot ios_logger VIO motion estimation results
+%figure;
+h_ARCore = plot3(stateEsti_ARCore(1,:),stateEsti_ARCore(2,:),stateEsti_ARCore(3,:),'g','LineWidth',2); hold on; grid on;
+plot_inertial_frame(0.5); legend(h_ARCore,{'ARCore'}); axis equal; view(26, 73);
+
+hold off
+
+
