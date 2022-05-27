@@ -15,6 +15,7 @@ nanoSecondToSecond = 1000000000;
 %% 1) parse OptiTrack camera pose data
 
 % parsing OptiTrack camera pose data text file
+% timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
 textFileDir = 'position_xyz.txt';
 textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
 ARKitPoseTime = textARKitPoseData.data(:,1).';
@@ -56,11 +57,45 @@ set(gcf,'Units','pixels','Position',[100 200 1800 900]);  % modify figure
 %% 2) parse ios_logger camera pose data
 
 % parsing ios_logger camera pose data text file
+% timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
+% textFileDir = ['ios_xyz_m1000.txt'];
+% textARCorePoseData = importdata(textFileDir, delimiter, headerlinesIn);
+% ARCorePoseTime = textARCorePoseData.data(:,1).';
+% ARCorePoseTime = (ARCorePoseTime - ARCorePoseTime(1)) ./ nanoSecondToSecond;
+% ARCorePoseData = textARCorePoseData.data(:,[2:13]);
+
+% if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
+% parsing ARKit camera pose data text file
+delimiter = ',';
 textFileDir = ['ios_xyz_m1000.txt'];
 textARCorePoseData = importdata(textFileDir, delimiter, headerlinesIn);
 ARCorePoseTime = textARCorePoseData.data(:,1).';
 ARCorePoseTime = (ARCorePoseTime - ARCorePoseTime(1)) ./ nanoSecondToSecond;
 ARCorePoseData = textARCorePoseData.data(:,[2:13]);
+
+n = size(ARCorePoseData)
+n = n(1);
+
+all_pos=[];
+for i = 1 : n
+    trans = [ARCorePoseData(i,1);ARCorePoseData(i,2);ARCorePoseData(i,3)];
+    quat = ARCorePoseData(i,4:7);
+    rotm = q2r(quat); %(3,3)
+    rt = [rotm , trans]; % (3,4)
+    rt1 = rt(1,:);
+    rt2 = rt(2,:);
+    rt3 = rt(3,:);
+    r = [rt1 rt2 rt3];
+    r = cast(r,"double");
+    all_pos = vertcat(all_pos, r);
+end
+ARCorePoseData = all_pos;
+%============================================================
+
+
+
+
+
 
 % ios_logger camera pose with various 6-DoF camera pose representations
 numPose = size(ARCorePoseData,1);
