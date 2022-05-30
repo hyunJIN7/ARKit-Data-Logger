@@ -22,6 +22,9 @@ nanoSecondToSecond = 1000000000;
 optiTextFileDir = 'opti_transforms_train.txt';
 iosTextFileDir = 'Copy_of_transforms_train.txt';
 
+optiTextFileDir = 'opti_pose_icptest3d_96.txt';
+iosTextFileDir = 'ARposes.txt';
+
 
 %% 1) parse OptiTrack camera pose data
 
@@ -45,46 +48,45 @@ end
 
 % parsing ios_logger camera pose data text file
 % timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
-textARCorePoseData = importdata(iosTextFileDir, delimiter, headerlinesIn);
-ARCorePoseTime = textARCorePoseData.data(:,1).';
-ARCorePoseData = textARCorePoseData.data(:,[2:13]);
-
-% OptiTrack camera pose with various 6-DoF camera pose representations
-numPose = size(ARCorePoseData,1)
-iosPosition = [] ; %optitrack pose 데이터만 모아놓은
-for k = 1:numPose
-    trans = [ARCorePoseData(k,4) ARCorePoseData(k,8) ARCorePoseData(k,12)];
-    iosPosition = vertcat(iosPosition, trans);
-end
+% textARCorePoseData = importdata(iosTextFileDir, delimiter, headerlinesIn);
+% ARCorePoseTime = textARCorePoseData.data(:,1).';
+% ARCorePoseData = textARCorePoseData.data(:,[2:13]);
+% 
+% % OptiTrack camera pose with various 6-DoF camera pose representations
+% numPose = size(ARCorePoseData,1)
+% iosPosition = [] ; %optitrack pose 데이터만 모아놓은
+% for k = 1:numPose
+%     trans = [ARCorePoseData(k,4) ARCorePoseData(k,8) ARCorePoseData(k,12)];
+%     iosPosition = vertcat(iosPosition, trans);
+% end
 
 
 
 
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
 % parsing ARKit camera pose data text file
-% delimiter = ',';
-% % iosTextFileDir = ['ARposes_opti_icptest2d_02.txt'];
-% textARKitPoseData = importdata(iosTextFileDir, delimiter, headerlinesIn);
-% ARKitPoseTime = textARKitPoseData.data(:,1).';
-% ARKitPoseData = textARKitPoseData.data(:,[2:8]);
-% 
-% n = size(ARKitPoseData,1);
-% ios_position = [] ;
-% all_pos=[];
-% for i = 1 : n
-%     trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
-%     ios_position = vertcat(ios_position, trans.');
-%     quat = ARKitPoseData(i,4:7);
-%     rotm = q2r(quat); %(3,3)
-%     rt = [rotm , trans]; % (3,4)
-%     rt1 = rt(1,:);
-%     rt2 = rt(2,:);
-%     rt3 = rt(3,:);
-%     r = [rt1 rt2 rt3];
-%     r = cast(r,"double");
-%     all_pos = vertcat(all_pos, r);
-% end
-% ARKitPoseData = all_pos;
+delimiter = ',';
+textARKitPoseData = importdata(iosTextFileDir, delimiter, headerlinesIn);
+ARKitPoseTime = textARKitPoseData.data(:,1).';
+ARKitPoseData = textARKitPoseData.data(:,[2:8]);
+
+n = size(ARKitPoseData,1);
+iosPosition = [] ;
+all_pos=[];
+for i = 1 : n
+    trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
+    iosPosition = vertcat(iosPosition, trans.');
+    quat = ARKitPoseData(i,4:7);
+    rotm = q2r(quat); %(3,3)
+    rt = [rotm , trans]; % (3,4)
+    rt1 = rt(1,:);
+    rt2 = rt(2,:);
+    rt3 = rt(3,:);
+    r = [rt1 rt2 rt3];
+    r = cast(r,"double");
+    all_pos = vertcat(all_pos, r);
+end
+ARKitPoseData = all_pos;
 %============================================================
 
 %% 3) ICP 적용 
