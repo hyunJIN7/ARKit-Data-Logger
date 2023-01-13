@@ -15,24 +15,33 @@ nanoSecondToSecond = 1000000000;
 %% 1) parse ARKit camera pose data  timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
 
 % parsing ARKit camera pose data text file
-textFileDir = 'opti_pose_icptest2d_02_96.txt';
+textFileDir = 'x_poses.txt';
 textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
-ARKitPoseTime = textARKitPoseData.data(:,1).';
-ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 ARKitPoseData = textARKitPoseData.data(:,[2:13]);
+% ARKitPoseTime = textARKitPoseData.data(:,1).';
+% ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 
+%timestamp 임의 생성
+n = size(ARKitPoseData,1);
+ARKitPoseTime = ones(1,n);
+for i = 1 : n
+    ARKitPoseTime(1,i) = i;
+end
+% ARKitPoseTime = textARKitPoseData.data(:,1).';
+ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
+ARKitPoseData = textARKitPoseData.data(:,[1:12]);
 %============================================================================
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
 % parsing ARKit camera pose data text file
 % 사용할때 한쪽은 주석 처리 해야함
-delimiter = ',';
-textFileDir = 'ARposes_opti_icptest2d_02.txt';
-textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
-ARKitPoseTime = textARKitPoseData.data(:,1).';
-ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
-ARKitPoseData = textARKitPoseData.data(:,[2:8]);
+% delimiter = ',';
+% textFileDir = 'ARposes_opti_icptest2d_02.txt';
+% textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
+% ARKitPoseTime = textARKitPoseData.data(:,1).';
+% ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
+% ARKitPoseData = textARKitPoseData.data(:,[2:8]);
 
-n = size(ARKitPoseData,1);
+
 
 all_pos=[];
 for i = 1 : n
