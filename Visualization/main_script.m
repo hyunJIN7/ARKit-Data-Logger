@@ -4,18 +4,15 @@ clear variables; %clear classes;
 rand('state',0); % rand('state',sum(100*clock));
 dbstop if error;
 
-
 %% common setting to read text files
-
 delimiter = ' ';
 headerlinesIn = 1;
 nanoSecondToSecond = 1000000000;
 
-
 %% 1) parse ARKit camera pose data  timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
 
 % parsing ARKit camera pose data text file
-textFileDir = 'x_poses.txt';
+textFileDir = 'x4_poses.txt';
 textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
 ARKitPoseData = textARKitPoseData.data(:,[2:13]);
 % ARKitPoseTime = textARKitPoseData.data(:,1).';
@@ -30,6 +27,8 @@ end
 % ARKitPoseTime = textARKitPoseData.data(:,1).';
 ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 ARKitPoseData = textARKitPoseData.data(:,[1:12]);
+
+
 %============================================================================
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
 % parsing ARKit camera pose data text file
@@ -41,22 +40,20 @@ ARKitPoseData = textARKitPoseData.data(:,[1:12]);
 % ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
 % ARKitPoseData = textARKitPoseData.data(:,[2:8]);
 
-
-
-all_pos=[];
-for i = 1 : n
-    trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
-    quat = ARKitPoseData(i,4:7);
-    rotm = q2r(quat); %(3,3)
-    rt = [rotm , trans]; % (3,4)
-    rt1 = rt(1,:);
-    rt2 = rt(2,:);
-    rt3 = rt(3,:);
-    r = [rt1 rt2 rt3];
-    r = cast(r,"double");
-    all_pos = vertcat(all_pos, r);
-end
-ARKitPoseData = all_pos;
+% all_pos=[];
+% for i = 1 : n
+%     trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
+%     quat = ARKitPoseData(i,4:7);
+%     rotm = q2r(quat); %(3,3)
+%     rt = [rotm , trans]; % (3,4)
+%     rt1 = rt(1,:);
+%     rt2 = rt(2,:);
+%     rt3 = rt(3,:);
+%     r = [rt1 rt2 rt3];
+%     r = cast(r,"double");
+%     all_pos = vertcat(all_pos, r);
+% end
+% ARKitPoseData = all_pos;
 %============================================================
 
 % ARKit camera pose with various 6-DoF camera pose representations
