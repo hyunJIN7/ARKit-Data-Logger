@@ -12,7 +12,7 @@ nanoSecondToSecond = 1000000000;
 %% 1) parse ARKit camera pose data  timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
 
 % parsing ARKit camera pose data text file
-textFileDir = 'x4_poses.txt';
+textFileDir = 'replica_room0_pose.txt';
 textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
 ARKitPoseData = textARKitPoseData.data(:,[2:13]);
 % ARKitPoseTime = textARKitPoseData.data(:,1).';
@@ -57,7 +57,7 @@ ARKitPoseData = textARKitPoseData.data(:,[1:12]);
 %============================================================
 
 % ARKit camera pose with various 6-DoF camera pose representations
-numPose = size(ARKitPoseData,1);
+numPose = 4 %size(ARKitPoseData,1);
 T_gc_ARKit = cell(1,numPose);
 stateEsti_ARKit = zeros(6,numPose);
 R_gc_ARKit = zeros(3,3,numPose);
