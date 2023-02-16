@@ -10,24 +10,56 @@ headerlinesIn = 1;
 nanoSecondToSecond = 1000000000;
 
 %% 1) parse ARKit camera pose data  timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
-
+% timestamp 없을 때 
 % parsing ARKit camera pose data text file
-textFileDir = 'replica_room0_pose.txt';
-textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
-ARKitPoseData = textARKitPoseData.data(:,[2:13]);
+% textFileDir = 'replica_room0_pose.txt';
+% textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
+% ARKitPoseData = textARKitPoseData.data(:,[2:13]);
+% 
+% %timestamp 임의 생성
+% n = size(ARKitPoseData,1);
+% ARKitPoseTime = ones(1,n);
+% for i = 1 : n
+%     ARKitPoseTime(1,i) = i;
+% end
+% ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
+% ARKitPoseData = textARKitPoseData.data(:,[1:12]);
+
+%============================================================================
+% parsing ARKit camera pose data text file : timestamp r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z
+% %timestamp 있을 때 
+% textFileDir = 'optitrack/opti_pose_z.txt';
+% textARKitPoseData = importdata(textFileDir, delimiter, headerlinesIn);
 % ARKitPoseTime = textARKitPoseData.data(:,1).';
 % ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
+% ARKitPoseData = textARKitPoseData.data(:,[2:13]);
 
-%timestamp 임의 생성
-n = size(ARKitPoseData,1);
-ARKitPoseTime = ones(1,n);
-for i = 1 : n
-    ARKitPoseTime(1,i) = i;
-end
-% ARKitPoseTime = textARKitPoseData.data(:,1).';
+
+%============================================================================
+% parsing strayscanner camera pose data text file   : timestamp framenum x y z qx qy qz qw 
+%timestamp 있을 때 
+delimiter = ','; 
+textFileDir = 'stray/o_y/odometry.csv'; % timestamp framenum x y z qx qy qz qw 
+textARKitPoseData = readtable(textFileDir);
+ARKitPoseTime = textARKitPoseData.timestamp';
 ARKitPoseTime = (ARKitPoseTime - ARKitPoseTime(1)) ./ nanoSecondToSecond;
-ARKitPoseData = textARKitPoseData.data(:,[1:12]);
+ARKitPoseData = [textARKitPoseData.x,textARKitPoseData.y,textARKitPoseData.z, textARKitPoseData.qw , textARKitPoseData.qx, textARKitPoseData.qy,textARKitPoseData.qz];
 
+all_pos=[];
+n = size(ARKitPoseData,1);
+for i = 1 : n
+    trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
+    quat = ARKitPoseData(i,4:7);
+    rotm = q2r(quat); %(3,3)
+    rt = [rotm , trans]; % (3,4)
+    rt1 = rt(1,:);
+    rt2 = rt(2,:);
+    rt3 = rt(3,:);
+    r = [rt1 rt2 rt3];
+    r = cast(r,"double");
+    all_pos = vertcat(all_pos, r);
+end
+ARKitPoseData = all_pos;
 
 %============================================================================
 % if ios_logger 원본 데이터 data 라면  timestamp tx ty tz qw qx qy qz
@@ -41,6 +73,7 @@ ARKitPoseData = textARKitPoseData.data(:,[1:12]);
 % ARKitPoseData = textARKitPoseData.data(:,[2:8]);
 
 % all_pos=[];
+% n = size(ARKitPoseData,1);
 % for i = 1 : n
 %     trans = [ARKitPoseData(i,1);ARKitPoseData(i,2);ARKitPoseData(i,3)];
 %     quat = ARKitPoseData(i,4:7);
@@ -57,7 +90,7 @@ ARKitPoseData = textARKitPoseData.data(:,[1:12]);
 %============================================================
 
 % ARKit camera pose with various 6-DoF camera pose representations
-numPose = 4 %size(ARKitPoseData,1);
+numPose = size(ARKitPoseData,1);
 T_gc_ARKit = cell(1,numPose);
 stateEsti_ARKit = zeros(6,numPose);
 R_gc_ARKit = zeros(3,3,numPose);
@@ -116,7 +149,7 @@ for k = 1:numPose
     Rgc_ARKit_current = T_gc_ARKit{k}(1:3,1:3);
     pgc_ARKit_current = T_gc_ARKit{k}(1:3,4);
     plot_camera_ARKit_frame(Rgc_ARKit_current, pgc_ARKit_current, 0.5, 'm'); hold off;
-    refresh; pause(0.01); k
+    refresh; pause(0.01); 
 end
 
 
