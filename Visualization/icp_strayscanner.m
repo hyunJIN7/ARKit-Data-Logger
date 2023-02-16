@@ -70,15 +70,15 @@ ios_ptCloud = pointCloud(iosPosition);
 % icp 적용한 optitrack txt 파일 저장
 fname = append("pcregistercpd_", optiTextFileDir);
 f = fopen(fname,"a");
-Rot = tform.Rotation'
 for k = 1:numPose
     %%position
     %% Rotation matrix  r11 r12 r13 x r21 r22 r23 y r31 r32 r33 z   4 8 12
     pose_raw = eye(4);
     pose_raw(1:3,1:3)= [OptiTrackPoseData(k,1:3); OptiTrackPoseData(k,5:7);OptiTrackPoseData(k,9:11)];
-    pose_raw(1:3,4)= [opti_ptCloud.Location(k,1);opti_ptCloud.Location(k,2);opti_ptCloud.Location(k,3)];
-    pose_new = pose_raw*Rot;
-    pose_new(1:3,4) =  [movingReg.Location(k,1);movingReg.Location(k,2);movingReg.Location(k,3)];
+    pose_raw(1:3,4)= [opti_ptCloud.Location(k,1);opti_ptCloud.Location(k,2);opti_ptCloud.Location(k,3)];  % [0.0458759044771320,-0.123530714220633,0.0734935360220735]
+    T = tform.T';
+    pose_new = T*pose_raw; 
+    pose_new(1:3,4) =  [movingReg.Location(k,1);movingReg.Location(k,2);movingReg.Location(k,3)]; % [0.0534699596104519,-0.117768268440877,0.0478990775273202]
     time = OptiTrackPoseTime(k);  
     textfile = fprintf(f, "%.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f\n",time,pose_new(1,:),pose_new(2,:), pose_new(3,:));
 end
